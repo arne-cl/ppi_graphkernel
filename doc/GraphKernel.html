@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<title>PPI-learning with all-dependency-paths kernel </title>
+<link rel="stylesheet" type="text/css" href="style.css" media="screen">
+</head><body>
+<div id="header">
+<h1>PPI-learning with all-dependency-paths kernel</h1>
+ <div id="menu">
+  <ul id="nav">
+   <li><a href="#general">General information</a></li>
+   <!-- <li><a href="#download">Download</a></li> -->
+  </ul>
+ </div>
+</div>
+<div id="content">
+<div id="right">
+<h2 name="general">General information</h2>
+<p>
+This page provides the software necessary for running the machine learning
+system for protein-protein interaction extraction described in 
+Airola A, Pyysalo S, Bj&ouml;rne J, Pahikkala T, Ginter F, Salakoski T,
+<i> <a href="http://www.biomedcentral.com/1471-2105/9/S11/S2"> 
+All-paths graph kernel for protein-protein interaction extraction
+with evaluation of cross-corpus learning</a></i>,
+BMC Bioinformatics 2008, 9 (Suppl 11)(S2).
+We kindly ask that users of the software cite this paper. An earlier
+version of the paper was presented at BioNLP 2008.
+</p>
+<p>
+<strong>NEW</strong> Errata available for the article
+<a href="http://mars.cs.utu.fi/PPICorpora/errata.pdf">here</a>.
+<p>
+Five corpora were used for evaluating the system, the AIMed [1], BioInfer [2],
+HPRD50 [3], IEPA [4], and LLL [5]. Derived versions of these corpora containing
+parses created with the Charniak-Lease parser [6] and transformed to collapsed
+Stanford format [7] are made available on this page. These data files are based
+on the conversions available 
+<a href="http://mars.cs.utu.fi/PPICorpora/">here</a>.
+</p>
+<p>
+<strong>Please note</strong> that these data files are further processed
+from the converted files and do not represent the only possible 
+"interpretation" of the converted files: for example, these files do not
+include candidate interacting protein pairs corresponding to the
+self-interactions that appear in the AImed corpus.
+</p>
+</p>
+<h2 name="download">Download</h2>
+<p>
+The software is distributed under GPL.
+</p>
+<p>
+<a href="GraphKernel_software.zip">Download the PPI-learning software.</a>
+</p>
+<h2>Contact</h2>
+<p>
+Contact antti.airola at utu.fi if you have questions about the software.
+</p>
+<h2>References</h2>
+<p>[1] Bunescu R, Ge R, Kate RJ, Marcotte EM, Mooney RJ, Ramani AK,
+Wong YW: Comparative Experiments on Learning Information Extractors for
+Proteins and their Interactions. Artif Intell Med, Summarization and
+Information Extraction from Medical Documents 2005, 33(2):139-155.</p>
+<p>[2] Pyysalo S, Ginter F, Heimonen J, Björne J, Boberg J, Järvinen J,
+Salakoski T: BioInfer: A Corpus for Information Extraction in the
+Biomedical Domain. BMC Bioinformatics 2007, 8(50).</p>
+<p>[3] Fundel K, Kuffner R, Zimmer R: RelEx - Relation extraction using dependency parse trees. Bioinformatics 2007, 23(3):365-371.</p>
+<p>[4] Ding J, Berleant D, Nettleton D, Wurtele E: Mining MEDLINE:
+abstracts, sentences, or phrases? In Proceedings of PSB'02 2002:326-337.</p>
+<p>[5] Nédellec C: Learning language in logic - genic interaction extraction challenge. In Proceedings of LLL'05 2005.</p>
+<p>[6] Charniak E, Lease M: Parsing biomedical literature. In Proceedings of IJ CNLP'05 2005.</p>
+<p>[7] de Marneffe MC, MacCartney B, Manning CD: Generating typed dependency parses from phrase structure parses. In Proceedings of LREC'06 2006.</p>
+</div>
+<div id="left">
+	<div class="box">
+				<h2>The original corpora :</h2>
+				<ul>
+				<li><a href="ftp://ftp.cs.utexas.edu/pub/mooney/bio-data/">AIMed</a></li>
+				<li><a href="http://mars.cs.utu.fi/BioInfer/">BioInfer</a></li>
+				<li><a href="http://www.bio.ifi.lmu.de/publications/RelEx/">HPRD50</a></li>
+				<li><a href="http://class.ee.iastate.edu/berleant/s/IEPA.htm">IEPA</a></li>
+				<li><a href="http://genome.jouy.inra.fr/texte/LLLchallenge/">LLL</a></li>
+				</ul>
+				<h2>The derived versions :</h2>
+				<ul>
+				<li><a href="http://mars.cs.utu.fi/PPICorpora/AImed-learning-format.xml.gz">AIMed</a></li>
+				<li><a href="http://mars.cs.utu.fi/PPICorpora/BioInfer-learning-format.xml.gz">BioInfer</a></li>
+				<li><a href="http://mars.cs.utu.fi/PPICorpora/HPRD50-learning-format.xml.gz">HPRD50</a></li>
+				<li><a href="http://mars.cs.utu.fi/PPICorpora/IEPA-learning-format.xml.gz">IEPA</a></li>
+				<li><a href="http://mars.cs.utu.fi/PPICorpora/LLL-learning-format.xml.gz">LLL</a></li>
+				</ul>
+	</div>
+</div>
+</div>
+</body></html>
