@@ -1,0 +1,89 @@
+============================== Analysis Format ==================================================
+
+The converted corpora PPI-software processes are expected to be in an xml-format, which has the
+following structure:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<corpus source="IEPA">
+  <document id="IEPA.d0" origId="...">
+    <sentence id="IEPA.d0.s0" origId="... text="...""/>
+        <entity id="IEPA.d0.s0.e0" origId="..." charOffset="21-24,26-29" type="..." text="..."/>
+	...
+        <pair e1="IEPA.d0.s0.e0" e2="IEPA.d0.s0.e1 id="IEPA.d0.s0.e1" interaction="True"/>
+	<pair e1="IEPA.d0.s0.e0" e2="IEPA.d0.s0.e1 id="IEPA.d0.s0.e2" interaction="False"/>
+	<pair e1="IEPA.d0.s0.e1" e2="IEPA.d0.s0.e1 id="IEPA.d0.s0.e2" interaction="False"/>
+	...
+	<sentenceanalyses>
+	    <parses>
+	         <parse parser="Charniak-Lease" tokenizer="Charniak-Lease">
+		     <dependency id="clp_1" t1="clt_3" t2="clt_2" type="nn" />
+            	     <dependency id="clp_2" t1="clt_37" t2="clt_3" type="prep_in" />
+            	     <dependency id="clp_3" t1="clt_6" t2="clt_5" type="det" />
+				...
+         	 </parse>
+	    <tokenizations>
+          	 <tokenization tokenizer="Charniak-Lease">
+            	     <token POS="IN" charOffset="0-1" id="clt_1" text="In" />
+            	     <token POS="FW" charOffset="3-6" id="clt_2" text="vivo" />
+            	     <token POS="NNS" charOffset="8-14" id="clt_3" text="studies" />
+				...
+		 </tokenization>
+	    </tokenizations>
+	</sentenceanalyses>
+    </sentence>
+    ...
+  </document>
+  ...
+</corpus>
+
+
+Nodes and attributes:
+corpus - this node contains the converted corpus from one input file
+    source - the name of the corpus
+document - often corresponds to a article, from which a group of sentences are from
+    id - a hierarchical id
+    origId - the id of the document in the source corpus
+sentence - one sentence of text
+    id - a hierarchical id 
+    origId - the id of the sentence in the source corpus
+    text - untokenized original text of the sentence
+entity - a named entity in the text (protein, gene or rna)
+    id - a hierarchical id 
+    origId - the id of the entity in the source corpus
+    charOffset - the character offsets in the original text
+    text - the part(s) of the original text defined by charOffset
+pair - a pair of entities appearing in the sentence.
+    id - a hierarchical id
+    e1 - first entity
+    e2 - second entity
+    interaction - True if an interaction is stated to exist for the pair in the sentence,
+		  False otherwise
+sentenceanalyses - contains analyses of the sentences, in our case parses and tokenizations
+parses - contains one or more dependency parses of the sentence
+parse - a dependency parse of the sentence
+    parser - name of the parser
+    tokenizer - the tokenization this parse refers to. 
+dependency - one dependency in the dependency parse
+    id - identity of the dependency, of the form characters_index, where the index is a
+         running numbering starting from one.
+    t1 - identity of the governor token
+    t2 - identity of the dependant token
+    type - type of the dependency
+tokenizations - contains tokenizations of the sentence
+tokenization - a single tokenization for the sentence
+    tokenizer - name of the tokenizer, used to identify which tokenization is related to
+                which parse
+token - a single token
+    POS - part of speech
+    charOffset - character offset of the token in the sentence
+    id - identity, of the form character_index where index is a running numberin starting
+         from one.
+    text - text of the token in the original sentence 
+	
+
+Notes:
+* The character offsets are 0-based, and both start and end offsets refer to
+  the number of the character in the sentence. For a sentence like "A is a 
+  protein", the offsets for "A" would be "0-0".
+* The character offsets may be a list of character ranges (e.g. "1-10,20-27") to accomodate disjoint entities.
+
