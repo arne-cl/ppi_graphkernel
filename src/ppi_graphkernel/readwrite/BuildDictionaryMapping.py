@@ -1,6 +1,8 @@
-#Reads in the analysis.xml-formatted training data file and builds
-#a dictionary of feature-mappings out of it, for the purpose of
-#linearizing the graph kernels
+"""
+This module reads an analysis.xml-formatted training data file and
+builds a dictionary of feature-mappings out of it, for the purpose of
+linearizing the graph kernels.
+"""
 
 import sys
 import gzip

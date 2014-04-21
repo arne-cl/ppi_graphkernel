@@ -1,5 +1,7 @@
-#Utilities meant to help the forming of graph kernels for
-#the PPI-extraction task
+"""
+This module contains utilities meant to help the forming of graph
+kernels for the PPI-extraction task.
+"""
 
 from ppi_graphkernel import ParseGraph
 try:
