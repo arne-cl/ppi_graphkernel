@@ -6,7 +6,7 @@ linearizing the graph kernels.
 
 import sys
 import gzip
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 from ppi_graphkernel import GraphMatrices
 from ppi_graphkernel import MatrixBuilders
@@ -21,26 +21,26 @@ settings.weightByDistance = False
 
 
 def getOptions():
-    optparser = OptionParser(usage="%prog [options]\n-h for help")
-    optparser.add_option("-i", "--input", dest="input", help="Gzipped xml-file containing the parsed data")
-    optparser.add_option("-o", "--output", dest="output", help="Output file for writing the dictionary")
-    optparser.add_option("-p", "--parser", dest="parser", help="Name of the parser", default="split_parse")
-    optparser.add_option("-t", "--tokenizer", dest="tokenizer", help="Name of the tokenizer", default="split")
-    (options, args) = optparser.parse_args()
-    if not options.input:
-        optparser.error("No input file defined")
-    if not options.output:
-        optparser.error("No output file defined")
-    return options, args
+    argparser = ArgumentParser(usage="%prog [options]\n-h for help")
+    argparser.add_argument("-i", "--input", dest="input", help="Gzipped xml-file containing the parsed data")
+    argparser.add_argument("-o", "--output", dest="output", help="Output file for writing the dictionary")
+    argparser.add_argument("-p", "--parser", dest="parser", help="Name of the parser", default="split_parse")
+    argparser.add_argument("-t", "--tokenizer", dest="tokenizer", help="Name of the tokenizer", default="split")
+    args = argparser.parse_args()
+    if not args.input:
+        argparser.error("No input file defined")
+    if not args.output:
+        argparser.error("No output file defined")
+    return args
 
 if __name__ == "__main__":
-    options, args = getOptions()
-    with gzip.open(options.input, 'r') as f:
+    args = getOptions()
+    with gzip.open(args.input, 'r') as f:
         documents = GraphMatrices.readInstances(f)
 
     instances = GraphMatrices.buildAMFromFullSentences(documents,
-        MatrixBuilders.buildAdjacencyMatrix, settings, options.parser,
-        options.tokenizer)
+        MatrixBuilders.buildAdjacencyMatrix, settings, args.parser,
+        args.tokenizer)
 
     datavector = []
     for document in instances.itervalues():
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     datavector = [(x[0], x[1]) for x in datavector]
     fmap = GraphMatrices.buildDictionary(datavector)
 
-    with gzip.open(options.output, 'w') as dict_out:
+    with gzip.open(args.output, 'w') as dict_out:
         for key in fmap.keys():
             dict_out.write(key+" %d\n" %(fmap[key]))
 
