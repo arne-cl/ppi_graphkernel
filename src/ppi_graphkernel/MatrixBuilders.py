@@ -49,7 +49,8 @@ class MatrixSettings:
         #Metamap settings
         self.metamappings = MatrixSettings.metamappings.none
     
-    def toString(self):
+    def __str__(self):
+        """returns a string representation of a MatrixSettings instance"""
         string = "----- Adjacency Matrix Settings -----\n"
         string += "Interaction xml modification\n"
         string += "  removed dependencies: " + str(self.removeDependencies) + "\n"
