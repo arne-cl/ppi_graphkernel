@@ -3,16 +3,16 @@
 import sys
 
 from numpy import *
-import Kernel
-import SparseRLS
-import PerformanceMeasures
+from ppi_graphkernel import Kernel
+from ppi_graphkernel.learn import SparseRLS
+from ppi_graphkernel.eval import PerformanceMeasures
 import gzip
 from math import sqrt
 import random
-import MatrixBuilders
-from Utilities import optimalFThreshold
+from ppi_graphkernel import MatrixBuilders
+from ppi_graphkernel.utils.Utilities import optimalFThreshold
 floattype = float64
-import FileReader
+from ppi_graphkernel.readwrite import FileReader
 from optparse import OptionParser
 
 def readParameters(source):

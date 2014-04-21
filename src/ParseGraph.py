@@ -17,9 +17,9 @@
                 Dijkstra (Optional for shortest path)
 """
 
-import Range
+from ppi_graphkernel.utils import Range
 import numpy
-import Dijkstra
+from ppi_graphkernel import Dijkstra
 import sys
 import types
 import time

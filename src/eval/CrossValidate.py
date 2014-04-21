@@ -6,15 +6,15 @@ import sys
 
 from numpy import *
 
-import SparseRLS
-import PerformanceMeasures
+from ppi_graphkernel.learn import SparseRLS
+from ppi_graphkernel.eval import PerformanceMeasures
 import gzip
-import Kernel
+from ppi_graphkernel import Kernel
 from math import sqrt
 import random
-from Utilities import optimalFThreshold
+from ppi_graphkernel.util.Utilities import optimalFThreshold
 floattype = float64
-import FileReader
+from ppi_graphkernel.readwrite import FileReader
 from optparse import OptionParser
 
 def getOptions():

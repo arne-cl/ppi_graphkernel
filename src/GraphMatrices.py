@@ -1,7 +1,7 @@
 #Utilities meant to help the forming of graph kernels for
 #the PPI-extraction task
 
-import ParseGraph
+from ppi_graphkernel import ParseGraph
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -10,8 +10,8 @@ import sys
 import gzip
 from numpy import *
 from numpy.linalg import *
-import Kernel
-from MatrixBuilders import *
+from ppi_graphkernel import Kernel
+from ppi_graphkernel.MatrixBuilders import *
 floattype = float64
 parser = "split_parse"
 tokenizer = "split"

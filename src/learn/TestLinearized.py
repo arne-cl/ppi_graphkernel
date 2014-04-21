@@ -1,7 +1,7 @@
 #Does the predictions with a trained learner
 
 import sys
-import FileReader
+from ppi_graphkernel.readwrite import FileReader
 import gzip
 from optparse import OptionParser
 

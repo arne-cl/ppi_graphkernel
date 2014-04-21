@@ -1,4 +1,4 @@
-import ParseGraph
+from ppi_graphkernel import ParseGraph
 try:
     import cElementTree as ET
 except ImportError:
@@ -6,7 +6,7 @@ except ImportError:
 import numpy
 from enum import Enum
 import sys
-import LoadInteractionWords
+from ppi_graphkernel.readwrite import LoadInteractionWords
 
 floattype = numpy.float64
 

@@ -3,8 +3,8 @@
 #training data using the buldDictionaryMapping.py script.
 import sys
 import gzip
-import GraphMatrices
-import MatrixBuilders
+from ppi_graphkernel import GraphMatrices
+from ppi_graphkernel import MatrixBuilders
 from optparse import OptionParser
 
 #The graph kerne is initialized with the settings
