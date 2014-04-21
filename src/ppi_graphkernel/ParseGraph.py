@@ -8,29 +8,32 @@
   The nodes can be modified and assigned attributes like weight, and the
   result can be converted into an adjacency matrix. The parse graph can
   also be used to generate different paths between its tokens.
-                
-  Status: All classes and methods should be working.
 
-  Dependencies: Range.py
-                Numpy (default in Python 2.5, can be installed separately
-                       for earlier versions)
-                Dijkstra (Optional for shortest path)
+  Status: All classes and methods should be working.
 """
 
-from ppi_graphkernel.utils import Range
-import numpy
-from ppi_graphkernel import Dijkstra
 import sys
 import types
 import time
 
-# splitPathStyles splits a style string into a list of dictionaries.
-# styleString is a comma-separated list of styles. Styles are in the format
-# style:length:directed:weight, where weight is optional. Style can be either "binary"
-# or "tertiary", length can be either "all" or "shortest", directed is either
-# "directed" or "nondirected" and weight is a number. For example 
-# "binary:all:directed:0.3" and "tertiary:shortest:nondirected:0.9"
+import numpy
+
+from ppi_graphkernel import Dijkstra
+from ppi_graphkernel.utils import Range
+
 def splitPathStyles(styleString):
+    """
+    splitPathStyles splits a style string into a list of dictionaries.
+
+    styleString is a comma-separated list of styles.
+    Styles are in the format style:length:directed:weight, where weight
+    is optional.
+
+    Style can be either "binary" or "tertiary", length can be either
+    "all" or "shortest", directed is either "directed" or "nondirected"
+    and weight is a number. For example "binary:all:directed:0.3" and
+    "tertiary:shortest:nondirected:0.9"
+    """
     splits = styleString.split(",")
     styles = []
     for split in splits:
