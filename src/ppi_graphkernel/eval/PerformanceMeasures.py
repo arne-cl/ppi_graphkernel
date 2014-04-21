@@ -165,9 +165,9 @@ def computeAccuracy(deci, label):
 if __name__ == '__main__':
 	
 	
-	from numarray import *
-	import numarray.linear_algebra as la
-	import numarray.mlab as mlab
+	from numpy.numarray import *
+	from numpy.numarray import linear_algebra as la
+	from numpy.numarray import mlab
 	
 	#A = [7, 4, 3, 10, 6, 2, 9, 8, 1, 5]
 	#B = [5, 7, 3, 10, 1, 9, 6, 2, 8, 4]
