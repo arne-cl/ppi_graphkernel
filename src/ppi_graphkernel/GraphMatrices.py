@@ -27,8 +27,22 @@ feature_counter = 0
 
 
 def readInstances(a_file):
-    """Parses the analysis file to extract the analyses on which the
-    graphs will be based on"""
+    """
+    Parses the analysis file to extract the analyses on which the
+    graphs will be based on.
+
+    Parameters
+    ----------
+    a_file : File or GzipFile
+        An XML analysis file (contains a tokenized and parsed PPI
+        corpus). The format is further described in doc/xml_format.txt.
+
+    Results
+    -------
+    result : dict
+        dict mapping from document IDs (str) to the corresponding
+        <document> element in the analysis file (cElementTree.Element)
+    """
     result = {}
     acontent = iter(ET.iterparse(a_file,events=("start","end")))
     event, root = acontent.next()
@@ -43,11 +57,49 @@ def belongsTo(offset, charOffsets):
             return True
     return False
 
-def buildAMFromFullSentences(documents, AM_builder, matrixSettings, parser, tokenizer, prepMatrix = True, limit = None):
-    """Builds adjacency matrices that have the same structure for all pairs from the
-    same sentence, and differ only by their labels. Returns a nested dictionary,
-    where a dictionary of document ids contains a dictionary of sentence ids,
-    which contains a dictionary of pair_id-matrix pairs."""
+def buildAMFromFullSentences(documents, AM_builder, matrixSettings,
+        parser, tokenizer, prepMatrix = True, limit = None):
+    """
+    Builds adjacency matrices that have the same structure for all pairs
+    from the same sentence, and differ only by their labels.
+    Returns a nested dictionary, where a dictionary of document ids
+    contains a dictionary of sentence ids, which contains a dictionary
+    of pair_id-matrix pairs.
+
+    Parameters
+    ----------
+    documents : dict of (str, cElementTree.Element)
+        a dictionary mapping from document IDs to the corresponding
+        <document> element in the analysis file
+    AM_builder : function
+        a function that can build an adjancency matrix, e.g.
+        buildAdjacencyMatrix, buildAdjacencyMatrixWithAllPaths or
+        buildAdjacencyMatrixWithShortestPaths from the `MatrixBuilders`
+        module
+    matrixSettings : MatrixBuilders.MatrixSettings
+        initialization settings for the graph kernel (e.g. weights,
+        type of paths)
+    parser : str
+        the analysis file may contain more than one parse per sentence,
+        so we'll have to choose one (e.g. split_parse).
+    tokenizer : str
+        the analysis file may contain more than one tokenization per
+        sentence, so we'll have to choose one (e.g. split).
+    prepMatrix : bool
+        If true, calls prepareMatrix ??? (default: True)
+    limit : int or None
+        If not None, the function adds only the first N documents to the
+        matrix (default: None)
+
+    Results
+    -------
+    doc_dictionary : document dict of (str, sentence dict of (str, pair dict of (str, tuple of (matrix, list, float))))
+        nested dict from document IDs (str, e.g. 'IEPA.d23') to a dict
+        with sentence IDs as keys (str, e.g. 'IEPA.d23.s0') mapping to a
+        dictionary with pair IDs as keys (str, e.g. 'IEPA.d23.s0.p0') to
+        a (matrix, list, float)-tuple describing the pair.
+        TODO: ???
+    """
     doc_dictionary = {}
     print >> sys.stderr, "Processing", len(documents), "documents"
     documentCount = 0
@@ -124,7 +176,7 @@ def buildDictionary(instances):
     return feature_map
 
 def LinearizeGraph(W, labels, feature_map, mode):
-    #proteins = set(["PROTEIN1", "PROTEIN2", "$$PROTEIN1", "$$PROTEIN2"]) 
+    #proteins = set(["PROTEIN1", "PROTEIN2", "$$PROTEIN1", "$$PROTEIN2"])
     """Linearizes the representation of the graph"""
     linear = {}
     for i in range(W.shape[0]):
@@ -145,13 +197,13 @@ def LinearizeGraph(W, labels, feature_map, mode):
                             else:
                                 print "Error at GraphMatrices LinearizeGraph: Unsupported Mode %s" %mode
                                 sys.exit(0)
-                                
+
     return linear
 
 def prepareMatrix(adjacencyMatrix, node_count, dtyp=float64):
     #W = inv(W) - mat(identity(node_count, dtype=float64))
     W = adjacencyMatrix * -1.0
-    W += mat(identity(node_count, dtype = dtyp))    
+    W += mat(identity(node_count, dtype = dtyp))
     return inv(W) - mat(identity(node_count, dtype=dtyp))
 
 def LinearizeGraphs(instances, feature_map, mode):
