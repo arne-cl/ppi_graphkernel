@@ -111,7 +111,7 @@ class ParseGraphNode(DijkstraNode):
             if dependency.to == self:
                 if (not self in path) and (not dependency in path):
                     dependency.fro.buildPathsToRoots(path + [self, dependency])
-    
+
     def buildPathsTo(self, targetId, impassableNodes=None):
         """ Returns all paths from this node to the target node
         """
@@ -123,18 +123,18 @@ class ParseGraphNode(DijkstraNode):
         ParseGraphNode.paths = None
         ParseGraphNode.impassableNodes = None
         return newPaths
-    
+
     def __buildPathsTo(self, targetId, currentPath):
         """ Recursive method called by the public buildPathsTo
         """
         if self.id in ParseGraphNode.impassableNodes:
             return
-        
+
         currentPath.append(self)
         if self.id == targetId and not currentPath[0].id == self.id:
             ParseGraphNode.paths.append(currentPath)
             return
-        
+
         pathLength = len(currentPath)
         branch = False
         for dependency in self.dependencies:
@@ -144,11 +144,11 @@ class ParseGraphNode(DijkstraNode):
                 currentPath.append(dependency)
                 if dependency.fro == self:
                     dependency.to.__buildPathsTo(targetId, currentPath)
-                else: 
+                else:
                     assert(dependency.to == self)
                     dependency.fro.__buildPathsTo(targetId, currentPath)
                 branch = True
-    
+
     def setDistance(self, currentDistance):
         """ Recursive method called by ParseGraph.reduceWeightByDistance
         """
@@ -160,7 +160,7 @@ class ParseGraphNode(DijkstraNode):
             if dependency.weightDistance > currentDistance + 1:
                 dependency.weightDistance = currentDistance + 1
                 dependency.setDistance(currentDistance + 1)
-    
+
     def toString(self, showPos=False, highlight=False):
         string = ""
         if self.isDependency:
@@ -176,30 +176,51 @@ class ParseGraphNode(DijkstraNode):
 
 class ParseGraph:
     """
-    A ParseGraph-object consists of tokens and dependencies. A dependency connects
-    two tokens with two edges (token->dependency->token, where -> = edge).
+    A ParseGraph object consists of tokens and dependencies.
+    A dependency connects two tokens with two edges
+    (token-node -> dependency-node -> token-node, where -> represents an
+    edge).
+
+    Attributes
+    ----------
+    dijkstra : TODO ??? or None
+        TODO ???
+    tokensById : dict of (int, ParseGraphNode)
+        TODO ???
+    dependenciesById : dict of (int, ParseGraphNode)
+        TODO ???
     """
-    def __init__(self, tokenElements, dependencyElements, mergeDependencies=False):
+    def __init__(self, tokenElements, dependencyElements,
+            mergeDependencies=False):
         self.dijkstra = None
         self.tokensById, self.dependenciesById = self.buildParseGraph(tokenElements, dependencyElements, mergeDependencies)
-    
+
     ###########################################################################
     # Construction and Conversion
     ###########################################################################
 
     def buildAdjacencyMatrix(self, floattype, directed=True, linearOrderWeight=0.9):
-        """ Returns a Numpy-matrix
+        """
+        TODO: why are there two nodes allocated for each token?
+
+        Returns
+        -------
+        matrix_tuple : tuple of (adjMatrix, labels) TODO ???
+            a adjacency matrix and a node label dictionary
         """
         tokensById, dependenciesById = self.tokensById, self.dependenciesById
-        #For each token, 2 nodes are allocated. For each dependency, one node is allocated
+        # For each token, 2 nodes are allocated. For each dependency,
+        # one node is allocated.
         node_count = 2*len(tokensById) + len(dependenciesById)
+
         # Make the adjacency matrix of the graph
         adjMatrix = numpy.mat(numpy.zeros((node_count,node_count), dtype = floattype))
-        #A dictionary of labels is associated with each node
+        # A dictionary of labels is associated with each node
         labels = [set([]) for x in range(node_count)]
-        #The word nodes have indices 0..2*len(tokens), the dependency nodes have the rest of the indices.
+        # The word nodes have indices 0..2*len(tokens), the dependency
+        # nodes have the rest of the indices.
         dep_indices = range(2*len(tokensById), node_count)
-        
+
         #For each dependency
         depKeys = dependenciesById.keys()
         depKeys.sort()
@@ -212,7 +233,7 @@ class ParseGraph:
             if not directed:
                 adjMatrix[dep.to.id-1, index] = dep.ppiWeight
                 adjMatrix[index, dep.fro.id-1] = dep.ppiWeight
-           
+
             if type(dep.ppiType) == types.ListType:
                 for i in dep.ppiType:
                     labels[index].add(i)
@@ -223,7 +244,7 @@ class ParseGraph:
             adjMatrix[i,i+1] = linearOrderWeight
             if not directed:
                 adjMatrix[i+1,i] = linearOrderWeight
-    
+
         #For each token
         for node in tokensById.values():
             index = node.id - 1
@@ -244,16 +265,24 @@ class ParseGraph:
                     labels[len(tokensById)+index].add(node.ppiPretag+code)
                 if node.isPPIInteraction:
                     labels[len(tokensById)+index].add(node.ppiPretag+"1Nt3R4Ct")
-        
+
         return adjMatrix, labels
 
     def buildParseGraph(self, tokenElements, dependencyElements, mergeDependencies=False):
-        """ Returns dictionaries containing tokens and dependencies
+        """
+        Returns dictionaries containing tokens and dependencies
         of the graph generated from ElementTree-elements.
+
+        Returns
+        -------
+        tokensById : dict of (int, ParseGraphNode)
+            maps from a token node ID to a ParseGraphNode instance
+        dependenciesById : dict of (int, ParseGraphNode)
+            maps from a dependency node ID to a ParseGraphNode instance
         """
         #import networkx as NX
         #self.nXGraph = NX.Graph()
-        
+
         tokensById = {}
         dependenciesById = {}
         for tokenElement in tokenElements:
@@ -265,7 +294,7 @@ class ParseGraph:
             node.charOffset = (int(charFrom), int(charTo))
             tokensById[node.id] = node
             #self.nXGraph.add_node(node.id)
-    
+
         #self.depByOrder = []
         dependencyIndex = len(tokensById) + 99
         if mergeDependencies:
@@ -275,7 +304,7 @@ class ParseGraph:
             dependency.dependencyType = dependencyElement.attrib["type"]
             dependency.fro = tokensById[int(dependencyElement.attrib["t1"].split("_")[1])]
             dependency.to = tokensById[int(dependencyElement.attrib["t2"].split("_")[1])]
-            
+
             if mergeDependencies:
                 key = (dependency.fro.id, dependency.to.id) #frozenset([dependency.fro.id, dependency.to.id])
                 if dependenciesByFroAndTo.has_key(key):
@@ -302,7 +331,7 @@ class ParseGraph:
             #self.nXGraph.add_edge((dependency.fro.id,dependency.id))
             #self.nXGraph.add_edge((dependency.id,dependency.to.id))
             dependencyIndex += 1
-        
+
         return tokensById, dependenciesById
 
     def buildDijkstra(self):
@@ -329,11 +358,11 @@ class ParseGraph:
             if len(token.entities) > 0:
                 token.buildPathsToRoots()
             count += 1
-            
+
     ###########################################################################
     # Marking and manipulation of special tokens
     ###########################################################################
-    
+
     def markBioInferInteractions(self, interactions):
         """ Marks tokens belonging to a BioInfer interaction
         """
@@ -351,7 +380,7 @@ class ParseGraph:
                         v.interactionWords.append(interaction[4])
                         interactionTokens.append(v.id)
         return interactionTokens
-    
+
     def markNamedEntities(self, entityElements):
         """ Marks tokens belonging to named entities
         """
@@ -379,7 +408,7 @@ class ParseGraph:
                 if id in node.entities:
                     tokenIds.append(node.id)
         return tokenIds
-    
+
     def getTokenIdsByText(self, texts, lookInsideNamedEntities=False):
         """ Returns the ids of all tokens whose text attribute can be
         found in the list texts. Can be used f.e. detecting interaction
@@ -396,7 +425,7 @@ class ParseGraph:
                 if tempText.lower() in texts:
                     matchingTokens.append(node.id)
         return matchingTokens
-    
+
     def getBioInferInteractionTokenIds(self, interactionIds):
         """ Returns the ids of all tokens in specified interaction words
         """
@@ -406,11 +435,11 @@ class ParseGraph:
                 if id in node.interactionWords:
                     tokenIds.append(node.id)
         return tokenIds
-    
+
     ###########################################################################
     # Path Construction
     ###########################################################################
-    
+
     def buildShortestPaths(self, startTokenId, endTokenId, all=False, directed=False):
         """ Build shortest paths using Dijkstra's algorithm
         """
@@ -451,7 +480,7 @@ class ParseGraph:
         """
         if useClosestMidToken:
             allMidTokens = midTokens[:]
-        
+
         paths = []
         i = j = 0
         startTime = -1
@@ -470,7 +499,7 @@ class ParseGraph:
                         else:
                             print >> sys.stderr, "Path generation timed out, interrupting path generation"
                             return paths
-                
+
                 tokenId = startTokens[i]
                 tokenId2 = endTokens[j]
                 if True: #tokenId2 != tokenId:
@@ -488,7 +517,7 @@ class ParseGraph:
                                     midTokens = []
                                     minDistance = distance
                                 midTokens.append(midToken)
-                    
+
                     for tokenIdMid in midTokens:
                         #print "start"
                         # Build sections from token 1 to interaction word
@@ -522,7 +551,7 @@ class ParseGraph:
                         for startSection in startSections:
                             for endSection in endSections:
                                 if len(startSection) == 0 or len(endSection) == 0:
-                                    continue 
+                                    continue
                                 path = startSection + endSection[1:]
                                 interactionWordIndex = len(startSection)-1
                                 paths.append( (path, interactionWordIndex) )
@@ -575,7 +604,7 @@ class ParseGraph:
             i += 1
             j = 0
         return paths
-    
+
     def buildBinaryPathsBetweenAll(self, tokensToConnect):
         """ Returns all paths between all specified tokens. Paths
         are directed so that the first token of the path is always
@@ -595,13 +624,13 @@ class ParseGraph:
     ###########################################################################
     # Dependency Weights
     ###########################################################################
-    
+
     def setAllDependencyWeights(self, weight):
         """ All weights are set to the given value
         """
         for node in self.dependenciesById.values():
             node.ppiWeight = weight
-    
+
     def setDependencyWeightsByPath(self, paths, weight):
         """ The weights of all dependencies in specified paths are set to the
         given value
@@ -610,7 +639,7 @@ class ParseGraph:
             for node in path:
                 if node.isDependency:
                     node.ppiWeight = weight
-                    
+
     def reduceWeightByDistance(self, zeroDistanceThreshold = 0.9, reduceFactor = 0.5):
         """ Reduces the weight of dependencies based on their distance
         from the nearest dependency whose weight is >= the threshold.
@@ -626,15 +655,15 @@ class ParseGraph:
                 assert(i in self.dependenciesById.values())
             for i in node.to.dependencies:
                 assert(i in self.dependenciesById.values())
-        
+
         # Cannot reduce weight if no node is over threshold
         if len(zeroDistanceDependencies) == 0:
             return
-        
+
         # Calculate distances
         for node in zeroDistanceDependencies:
             node.setDistance(0)
-        
+
         # Reduce weight
         for node in self.dependenciesById.values():
             node.ppiWeight *= pow(reduceFactor, max(node.weightDistance - 1, 0))
@@ -642,12 +671,12 @@ class ParseGraph:
     ###########################################################################
     # PPI-label creation and modification
     ###########################################################################
-    
+
     def addMetamapCodes(self, codesByTokenId):
         for k,v in self.tokensById.iteritems():
             if codesByTokenId.has_key(k):
                 v.metamapCodes = codesByTokenId[k]
-    
+
     def ppiTextFromOriginalText(self):
         """ Sets the ppiText of all tokens to their original text
         """
@@ -655,9 +684,9 @@ class ParseGraph:
             token.ppiText = token.text
 
     def maskNames(self, e1Id, e2Id):
-        """ Sets the ppiText of all tokens based on the text of the token, 
-        and masks the text of all named entities and the proteins in the 
-        pair. 
+        """ Sets the ppiText of all tokens based on the text of the token,
+        and masks the text of all named entities and the proteins in the
+        pair.
         """
         for token in self.tokensById.values():
             #Give different labels to tokens belonging to named entities
@@ -667,9 +696,9 @@ class ParseGraph:
                 token.ppiText = "PROTEIN2"
             elif len(token.entities) > 0: # token belongs to at least one named entity
                 token.ppiText = "PROTEIN_X"
-            #else: 
+            #else:
             #    token.ppiText = token.text
-    
+
     def addPositionTags(self, entity1TokenIds, entity2TokenIds):
         """ Sets a prefix to the tokens ppiText based on their linear
         order in the sentence.
@@ -685,10 +714,10 @@ class ParseGraph:
                 elif token.id > entity2LastTokenId:
                     pretag = "$A$"
             token.ppiPretag = pretag
-    
+
     def setPPIPrefixForDependencies(self, prefix, threshold):
-        """ Sets the dependencies ppiType to their dependencyType, 
-        and adds a prefix if their weight is over a given threshold 
+        """ Sets the dependencies ppiType to their dependencyType,
+        and adds a prefix if their weight is over a given threshold
         """
         for dependency in self.dependenciesById.values():
             if dependency.ppiWeight >= threshold:
@@ -707,7 +736,7 @@ class ParseGraph:
                         dependency.ppiType.append(dependency.dependencyType[i])
                 else:
                     dependency.ppiType = dependency.dependencyType
-    
+
     def setPPIInteractionWords(self, paths):
         for path in paths:
             path[0][path[1]].isPPIInteraction = True
@@ -718,7 +747,7 @@ class ParseGraph:
 
 def removeIntraEntityPaths(paths):
     """ Returns a list with paths starting and ending within the same named
-    entity removed. 
+    entity removed.
     """
     pathsToKeep = []
     for path in paths:
@@ -743,7 +772,7 @@ def getPathsByLength(paths, threshold):
 
 def getShortestPaths(paths):
     """ Returns a list containing only the shortest paths. The list may contain
-    several shorters paths with the same length. 
+    several shorters paths with the same length.
     """
     shortestPaths = []
     shortestLength = 99999
@@ -757,7 +786,7 @@ def getShortestPaths(paths):
 
 def getShortestTertiaryPaths():
     """ Returns a list containing only the shortest paths. The list may contain
-    several shorters paths with the same length. 
+    several shorters paths with the same length.
     """
     shortestPaths = []
     shortestLength = 99999
@@ -769,7 +798,7 @@ def getShortestTertiaryPaths():
             shortestPaths.append(path)
     return shortestPaths
 
-# same as previous path generator    
+# same as previous path generator
 def buildPathsBetweenNamedEntities(namedEntityElements, tokenElements, dependencyElements):
     tokensById = buildParseGraph(tokenElements, dependencyElements)
     namedEntityNodeIds = markNamedEntities(namedEntityElements, tokensById)
