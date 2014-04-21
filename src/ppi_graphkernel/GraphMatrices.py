@@ -93,7 +93,7 @@ def buildAMFromFullSentences(documents, AM_builder, matrixSettings,
 
     Results
     -------
-    doc_dictionary : document dict of (str, sentence dict of (str, pair dict of (str, tuple of (matrix, list, float))))
+    doc_dictionary : document dict of (str, sentence dict of (str, pair dict of (str, ppi tuple of (matrix, list, float))))
         nested dict from document IDs (str, e.g. 'IEPA.d23') to a dict
         with sentence IDs as keys (str, e.g. 'IEPA.d23.s0') mapping to a
         dictionary with pair IDs as keys (str, e.g. 'IEPA.d23.s0.p0') to
@@ -111,51 +111,78 @@ def buildAMFromFullSentences(documents, AM_builder, matrixSettings,
         doc_sent_dictionary = {}
         for child in document:
             if child.tag == "sentence":
-                sent_dictionary = {}
-                it = child.getiterator("tokenization")
-                tokenlist = None
-                for toks in it:
-                    if toks.get("tokenizer")== tokenizer:
-                        tokenlist = toks
-                #tokenlist = it.next()
-                tokens = [x for x in tokenlist]
-                it = child.getiterator("parse")
-                deplist = None
-                for deps in it:
-                    if deps.get("parser") == parser and deps.get("tokenizer") == tokenizer:
-                        deplist = deps
-                #deplist = it.next()
-                if tokenlist == None:
-                    print "Tokenizer %s unknown" %(tokenizer)
-                    sys.exit(0)
-                elif deplist == None:
-                    print child.get("id")
-                    print "Parser %s unknown" %(parser)
-                    sys.exit(0)
-                dependencies = [x for x in deplist]
-                it = child.getiterator("entity")
-                entities = [x for x in it]
-                mappings = None
-                if matrixSettings.metamappings == MatrixSettings.metamappings.direct:
-                    metanode = child.getiterator("metamappings")
-                    metanode = metanode.next()
-                    for node in metanode:
-                        if node.get("relToParse")==parser and node.get("relToTokenization")==tokenizer:
-                            mappings = node
-                            break
-                    assert mappings
-                    mappings = [x for x in mappings]
-                for pair in child.getiterator("pair"):
-                    W, labels, output = AM_builder(tokens, dependencies, entities, mappings, pair, matrixSettings)
-                    if prepMatrix:
-                        node_count = 2*len(tokens) + len(dependencies)
-                        W = prepareMatrix(W, node_count)
-                    sent_dictionary[pair.get("id")] = W, labels, output
+                sent_dictionary = build_sentence_dict(child, AM_builder,
+                    matrixSettings, parser, tokenizer, prepMatrix, limit)
                 doc_sent_dictionary[child.get("id")] = sent_dictionary
         doc_dictionary[doc_id] = doc_sent_dictionary
         documentCount += 1
     print >> sys.stderr
     return doc_dictionary
+
+
+def build_sentence_dict(sentence, AM_builder, matrixSettings,
+        parser, tokenizer, prepMatrix = True, limit = None):
+    """
+    Parameters
+    ----------
+    sentence : cElementTree.Element
+        an ElementTree element representing a <sentence> element in an
+        analysis XML file
+
+    Returns
+    -------
+    sent_dictionary : dict
+        nested dict which maps from pair ID (str, e.g. 'IEPA.d23.s0.p0')
+        to a (matrix, list, float)-tuple describing the pair.
+    """
+    sent_dictionary = {}
+
+    it = sentence.getiterator("tokenization")
+    tokenlist = None
+    for toks in it:
+        if toks.get("tokenizer") == tokenizer:
+            tokenlist = toks
+    if tokenlist == None:
+        print sentence.get("id")
+        print "Tokenizer %s unknown" %(tokenizer)
+        sys.exit(1)
+    tokens = [x for x in tokenlist]
+
+    it = sentence.getiterator("parse")
+    deplist = None
+    for deps in it:
+        if deps.get("parser") == parser and \
+            deps.get("tokenizer") == tokenizer:
+                deplist = deps
+    if deplist == None:
+        print sentence.get("id")
+        print "Parser %s unknown" %(parser)
+        sys.exit(1)
+    dependencies = [x for x in deplist]
+
+    it = sentence.getiterator("entity")
+    entities = [x for x in it]
+
+    mappings = None
+    # metamappings can be 'none' or 'direct' (Enum)
+    if matrixSettings.metamappings == MatrixSettings.metamappings.direct:
+        metanode = sentence.getiterator("metamappings")
+        metanode = metanode.next()
+        for node in metanode:
+            if node.get("relToParse") == parser and \
+                node.get("relToTokenization") == tokenizer:
+                    mappings = node
+                    break
+        assert mappings
+        mappings = [x for x in mappings]
+
+    for pair in sentence.getiterator("pair"):
+        W, labels, output = AM_builder(tokens, dependencies, entities, mappings, pair, matrixSettings)
+        if prepMatrix:
+            node_count = 2*len(tokens) + len(dependencies)
+            W = prepareMatrix(W, node_count)
+        sent_dictionary[pair.get("id")] = W, labels, output
+    return sent_dictionary
 
 
 def buildDictionary(instances):
