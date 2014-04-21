@@ -6,12 +6,14 @@ linearizing the graph kernels.
 
 import sys
 import gzip
-from ppi_graphkernel import GraphMatrices
-from ppi_graphkernel import MatrixBuilders
 from optparse import OptionParser
 
-#The graph kerne is initialized with the settings
-#used for the paper
+from ppi_graphkernel import GraphMatrices
+from ppi_graphkernel import MatrixBuilders
+
+
+#The graph kernel is initialized with the settings
+#used in the paper
 settings = MatrixBuilders.MatrixSettings()
 command = "binary:all_shortest:nondirected:0.9"
 settings.paths = command
@@ -33,11 +35,13 @@ def getOptions():
 
 if __name__ == "__main__":
     options, args = getOptions()
-    f = gzip.GzipFile(options.input, 'r')
-    dict_out = gzip.GzipFile(options.output, 'w')
-    documents = GraphMatrices.readInstances(f)
-    instances = GraphMatrices.buildAMFromFullSentences(documents, MatrixBuilders.buildAdjacencyMatrix, settings, options.parser, options.tokenizer)
-    f.close()
+    with gzip.open(options.input, 'r') as f:
+        documents = GraphMatrices.readInstances(f)
+
+    instances = GraphMatrices.buildAMFromFullSentences(documents,
+        MatrixBuilders.buildAdjacencyMatrix, settings, options.parser,
+        options.tokenizer)
+
     datavector = []
     for document in instances.itervalues():
         for sentence in document.itervalues():
@@ -45,8 +49,9 @@ if __name__ == "__main__":
                 datavector.append(instance)
     datavector = [(x[0], x[1]) for x in datavector]
     fmap = GraphMatrices.buildDictionary(datavector)
-    for key in fmap.keys():
-        dict_out.write(key+" %d\n" %(fmap[key]))
-    dict_out.close()
-    
+
+    with gzip.open(options.output, 'w') as dict_out:
+        for key in fmap.keys():
+            dict_out.write(key+" %d\n" %(fmap[key]))
+
 
