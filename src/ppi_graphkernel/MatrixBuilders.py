@@ -77,6 +77,7 @@ class MatrixSettings:
         string += "  mapping: " + str(self.metamappings)
         return string
 
+
 def getMatrixSettingsForShortestTertiaryPaths(weightByDistance=True, stem=False):
     m = MatrixSettings()
     m.paths = "all_tertiary:all_shortest:nondirected:0.9"
@@ -102,7 +103,6 @@ def getMatrixSettingsForAllBinaryPaths(weightByDistance=True, stem=False):
         m.tokenPPIText = MatrixSettings.ppiTexts.stem
     return m
 
-# Common helper functions #####################################################
 
 def removeDependencies(dependencyElements, typesToRemove):
     for dependencyElement in dependencyElements[:]:
@@ -110,9 +110,41 @@ def removeDependencies(dependencyElements, typesToRemove):
             dependencyElements.remove(dependencyElement)
     return dependencyElements
 
-# Adjacency Matrix Builders ###################################################
 
-def buildAdjacencyMatrix(tokenElements, dependencyElements, entityElements, metamapElements, pairElement, matrixSettings):
+def buildAdjacencyMatrix(tokenElements, dependencyElements,
+        entityElements, metamapElements, pairElement, matrixSettings):
+    """
+    Parameters
+    ----------
+    tokenElements : cElementTree.Element
+        List of <token> elements, which represent all the tokens of the
+        sentence. Each <token> contains an ID, the text, POS tag and
+        character offset of the token.
+    dependencyElements : cElementTree.Element
+        List of <dependency> elements, which represent all the
+        dependencies of the (dependency-parsed) sentence. Each
+        <dependency> contains an ID, a source, a target and dependency
+        type.
+    entityElements : cElementTree.Element
+        List of <entity> elements, which represent protein mentions of
+        the sentence. Each <entity> contains an ID, the text and the
+        character offsets of the mention.
+    metamapElements: ??? or None
+        There is code to extract metamappings from an analysis XML file
+        (in GraphMatrices.build_sentence_dict), but there are no example
+        corpora which have these attributes!
+    pairElement : cElementTree.Element
+        a <pair> element, which contains an ID, the IDs of both
+        entities and truth value stating whether there's an interaction
+        between the two.
+    matrixSettings : MatrixSettings
+        contains settings for creating an adjacency matrix
+
+    Returns
+    -------
+    matrix_tuple : tuple of (adjMatrix, labels, output)
+        TODO ???
+    """
     m = matrixSettings
     
     #Punctuation dependencies are mostly junk
