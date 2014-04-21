@@ -1,11 +1,14 @@
-from ppi_graphkernel import ParseGraph
+import sys
+import numpy
+
 try:
     import cElementTree as ET
 except ImportError:
     import xml.etree.cElementTree as ET
-import numpy
+
 from enum import Enum
-import sys
+
+from ppi_graphkernel import ParseGraph
 from ppi_graphkernel.readwrite import LoadInteractionWords
 
 floattype = numpy.float64
