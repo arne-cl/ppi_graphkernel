@@ -3,22 +3,27 @@ This module contains utilities meant to help the forming of graph
 kernels for the PPI-extraction task.
 """
 
-from ppi_graphkernel import ParseGraph
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
     import cElementTree as ET
 import sys
-import gzip
-from numpy import *
-from numpy.linalg import *
+
+from numpy import float64, identity, mat
+from numpy.linalg import inv
+
 from ppi_graphkernel import Kernel
-from ppi_graphkernel.MatrixBuilders import *
-floattype = float64
-parser = "split_parse"
-tokenizer = "split"
-kernel = Kernel.Kernel()
+from ppi_graphkernel.MatrixBuilders import MatrixSettings
+
+# TODO: are these constants used anywhere?
+FLOATTYPE = float64
+PARSER = "split_parse"
+TOKENIZER = "split"
+KERNEL = Kernel.Kernel()
+
 feature_counter = 0
+# TODO: why is this a global variable? It's only used in
+# buildDictionary()?
 
 
 def readInstances(a_file):
