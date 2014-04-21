@@ -188,10 +188,10 @@ def buildAdjacencyMatrix(tokenElements, dependencyElements,
     if m.tokenPPIText == MatrixSettings.ppiTexts.full:
         parseGraph.ppiTextFromOriginalText()
     elif m.tokenPPIText == MatrixSettings.ppiTexts.stem:
-        parseGraph.ppiTextFromStems()
+        parseGraph.ppiTextFromStems() # FIXME: not implemented!
     else:
         print >> sys.stderr, "Illegal ppiText setting", m.tokenPPIText
-        sys.exit(0)
+        sys.exit(1)
     
     # Add metamap codes
     if metamapElements != None:
@@ -204,11 +204,8 @@ def buildAdjacencyMatrix(tokenElements, dependencyElements,
         parseGraph.maskNames(e1Id, e2Id)
     if m.tokenPositionTags:
         parseGraph.addPositionTags(entity1TokenIds, entity2TokenIds)
-    
-    if pairElement.get("interaction") == "True":
-        output = 1.
-    else:
-        output = -1.
+
+    output = 1. if pairElement.get("interaction") == "True" else -1.
 
     adjMatrix, labels = parseGraph.buildAdjacencyMatrix(floattype, m.directed, m.linearOrderWeight)
     return adjMatrix, labels, output    
