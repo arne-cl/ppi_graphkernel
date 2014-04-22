@@ -1,4 +1,22 @@
-============== SOFTWARE FOR PPI-EXTRACTION WITH GRAPH KERNELS =================
+This is my "fork" of the graph kernel implemented in Python by
+Airola et al. (2008), which is described
+`on their website <http://mars.cs.utu.fi/PPICorpora/GraphKernel.html>`_.
+My intention for playing with the original code is to understand graph kernels
+on dependency graphs better.
+
+So far, I have made the following improvements:
+
+- structured the codebase into a package `ppi_graphkernels` and subpackages
+- added a setup.py to install the package system-wide with dependencies
+- added documentation to some methods/functions
+- replaced some JAVAisms with more 'pythonic' code
+
+The rest of this document contains the original README (converted to
+restructuredText).
+
+
+SOFTWARE FOR PPI-EXTRACTION WITH GRAPH KERNELS
+==============================================
 
 This package contains an implementation of the all-dependency-paths graph kernel
 described in the paper "A Graph Kernel for Protein-Protein Interaction
@@ -35,7 +53,8 @@ a corpus to the format used by the system may require significant effort.
 Contact us in case of having problems or requiring further information about the
 experimental procedure used when testing the kernel.
 
-============================ QUICKSTART ========================================
+QUICKSTART
+==========
 
 Note that most of the scripts used here have -h (help) option you can use
 to check available options.
@@ -56,14 +75,18 @@ names are blinded.
 
 First, build a dictionary that maps the possible features to a running indexing.
 
-python BuildDictionaryMapping.py -i CORPUS.XML.gz -p MYPARSER -t MYTOKENIZER
--o dictionary.txt.gz
+::
+
+    python BuildDictionaryMapping.py -i CORPUS.XML.gz -p MYPARSER -t MYTOKENIZER
+    -o dictionary.txt.gz
 
 Second, compute the graph kernels for your data, producing a linearized feature
 representation corresponding to the graph kernels.
 
-python LinearizeAnalysis.py -i CORPUS.XML.gz -o LinearCorpus.gz -p MYPARSER
--t MYTOKENIZER
+::
+
+    python LinearizeAnalysis.py -i CORPUS.XML.gz -o LinearCorpus.gz -p MYPARSER
+    -t MYTOKENIZER
 
 The software can be run in two modes, which affect how the G matrix is
 constructed. "-m max" is the default option which corresponds to how
@@ -80,7 +103,9 @@ each split.
 Third, you can normalize the data vectors to unit length. Sometimes this
 can boost the results, sometimes it makes them worse.
 
-python NormalizeData.py -i LinearCorpus.gz -o NormalizedCorpus.gz
+::
+
+    python NormalizeData.py -i LinearCorpus.gz -o NormalizedCorpus.gz
 
 From now on, let us assume that you have created two data files linearized
 using a dictionary created from the training data. One of them is the
@@ -89,8 +114,10 @@ TRAIN_SET, and one the TEST_SET.
 To choose optimal parameters (according to F-score), you can do leave-one
 document-out cross-validation on the TRAIN_SET.
 
-python CrossValidate.py -i TRAIN_SET -o CV_predictions.o -p Parameters.p
--r -10_10 -b 500
+::
+
+    python CrossValidate.py -i TRAIN_SET -o CV_predictions.o -p Parameters.p
+    -r -10_10 -b 500
 
 This command will run cross-validation on the sparse RLS algorithm using
 500 basis vectors (or less, if your data set is smaller that that).
@@ -101,15 +128,19 @@ in this example 2^-10 ... 2^10.
 
 To build a model using these learned parameters you can run
 
-python TrainLinearized.py -i TRAIN_SET -p Parameters.p -b 500
--o Model.m
+::
+
+    python TrainLinearized.py -i TRAIN_SET -p Parameters.p -b 500
+    -o Model.m
 
 Alternatively you can supply the value of the regularization
 paremeter directly with the r -option.
 
 To make predictions with this model run
 
-python TestLinearized.py -i TEST_SET -m Model.m -o Predictions
+::
+
+    python TestLinearized.py -i TEST_SET -m Model.m -o Predictions
 
 When calculating the performance, use the threshold selected
 in cross-validation, if your performance metric needs such a
