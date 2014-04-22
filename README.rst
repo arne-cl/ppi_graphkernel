@@ -1,10 +1,13 @@
+PPI-learning with all-dependency-paths kernel
+=============================================
+
 This is my "fork" of the graph kernel implemented in Python by
 Airola et al. (2008), which is described
 `on their website <http://mars.cs.utu.fi/PPICorpora/GraphKernel.html>`_.
 My intention for playing with the original code is to understand graph kernels
 on dependency graphs better.
 
-So far, I have made the following improvements:
+So far, I have made the following changes:
 
 - structured the codebase into a package `ppi_graphkernels` and subpackages
 - added a setup.py to install the package system-wide with dependencies
@@ -16,7 +19,7 @@ restructuredText).
 
 
 SOFTWARE FOR PPI-EXTRACTION WITH GRAPH KERNELS
-==============================================
+----------------------------------------------
 
 This package contains an implementation of the all-dependency-paths graph kernel
 described in the paper "A Graph Kernel for Protein-Protein Interaction
@@ -54,7 +57,7 @@ Contact us in case of having problems or requiring further information about the
 experimental procedure used when testing the kernel.
 
 QUICKSTART
-==========
+----------
 
 Note that most of the scripts used here have -h (help) option you can use
 to check available options.
